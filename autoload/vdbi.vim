@@ -306,7 +306,7 @@ function! s:startup_vdbi()
         exe "sleep" get(g:, 'vdbi_server_wait', 2)
       endif
       call s:vdbi.connect(s:datasource, username, password)
-      if index(s:history.datasource, s:datasource) == -1
+      if index(map(deepcopy(s:history.datasource), 'v:val[0]'), s:datasource) == -1
         if get(g:, 'vdbi_store_password_in_history', 1) == 0
           let password = ''
         endif
