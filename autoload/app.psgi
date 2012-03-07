@@ -142,17 +142,16 @@ my %methods = (
         return undef unless $sth;
         return [$sth->{NAME}, $sth->fetchall_arrayref()];
     },
+    'shutdown' => sub {
+        $methods{'disconnect'}->();
+        $env->{'psgix.harakiri'} = 1;
+        return 1;
+    },
 );
 
 my $app = sub {
     my $env = shift;
     my $req = Plack::Request->new($env);
-    if ($req->path_info eq '/shutdown') {
-        $methods{'disconnect'}->();
-        kill 'KILL', $$;
-		$env->{'psgix.harakiri'} = 1;
-        return;
-    }
     local $RPC::XML::ALLOW_NIL = 1;
     local $RPC::XML::ENCODING = 'utf-8';
     my $q = RPC::XML::ParserFactory->new()->parse($req->content);

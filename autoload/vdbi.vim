@@ -22,6 +22,7 @@ let s:vdbi = xmlrpc#wrap([
 \ {'uri': s:uri, 'name': 'column_info',      'argnames': ['catalog', 'schema', 'table', 'column']},
 \ {'uri': s:uri, 'name': 'primary_key_info', 'argnames': ['catalog', 'schema', 'table']},
 \ {'uri': s:uri, 'name': 'foreign_key_info', 'argnames': ['pkcatalog', 'pkschema', 'pktable', 'fkcatalog', 'fkschema', 'fktable']},
+\ {'uri': s:uri, 'name': 'shutdown',         'argnames': []},
 \])
 
 let s:hist_file = expand('~/.vdbi_history')
@@ -271,7 +272,7 @@ function! vdbi#shutdown()
   if len(s:datasource) > 0
     if get(g:, 'vdbi_use_external_server', 0) == 0
       try
-        call http#get(s:uri . 'shutdown')
+        call s:vdbi.shutdown()
       catch
       endtry
     endif
