@@ -1,0 +1,40 @@
+vdbi-vim
+========
+
+Database client for Vim.
+
+Usage:
+------
+
+```
+:VDBI
+```
+
+
+Requirements:
+-------------
+
+* vim webapi-vim https://github.com/mattn/webapi-vim
+* perl Plack
+
+Install:
+--------
+
+```
+$ cd ~/.vim/bundle
+$ git clone https://github.com/mattn/webapi-vim
+```
+
+```
+$ cpanm DBI Plack RPC::XML RPC::XML::ParserFactory
+```
+
+License:
+--------
+
+BSD style license.
+
+Author:
+-------
+
+Yasuhiro Matsumoto <mattn.jp@gmail.com>
