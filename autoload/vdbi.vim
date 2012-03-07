@@ -117,7 +117,8 @@ function! s:do_hide()
   if b:type == 'columns'
     call vdbi#tables()
   elseif b:type == 'query'
-    call vdbi#tables()
+    "call vdbi#tables()
+    hide
   else
     hide
   endif
@@ -268,10 +269,12 @@ endfunction
 
 function! vdbi#shutdown()
   if len(s:datasource) > 0
-    try
-      call http#get(s:uri . 'shutdown')
-    catch
-    endtry
+    if get(g:, 'vdbi_use_external_server', 0) == 0
+      try
+        call http#get(s:uri . 'shutdown')
+      catch
+      endtry
+    endif
     let s:datasource = ''
   endif
 endfunction
