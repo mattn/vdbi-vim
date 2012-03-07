@@ -1,0 +1,113 @@
+*vdbi.txt*	Vim with DataBase Interface
+
+	   -------------------------------------------------------
+			 VDBI: Database client for vim
+	   -------------------------------------------------------
+
+Author: Yasuhiro Matsumoto <mattn.jp@gmail.com>
+WebSite: http://mattn.kaoriya.net/
+Repository: http://github.com/mattn/vdbi-vim
+License: BSD style license
+
+==============================================================================
+CONTENTS                                                         *vdbi-contents*
+
+Introduction           |vdbi-introduction|
+Install                |vdbi-install|
+Usage                  |vdbi-usage|
+Customize              |vdbi-customize|
+ToDo                   |vdbi-todo|
+
+==============================================================================
+INTRODUCTION                                            *vbdi-introduction* *vbdi*
+
+|VBDI| is vim application which can manipulate database. This plugin works: 
+
+ * view tables
+ * view columns of the table
+ * view records in the table
+ * view records with your query
+ * execute insert/update query
+
+==============================================================================
+INSTALL                                                           *vbdi-install*
+
+Install the distributed files into Vim runtime directory which is usually
+~/.vim/, or $HOME/vimfiles on Windows.
+
+If you install pathogen that provided from Tim Pope, you should extract the
+file into 'bundle' directory.
+
+==============================================================================
+USAGE                                                               *vbdi-usage*
+
+To open table view, just type |:VDBI|. Then you will be ask following
+information to connect database with prompt.
+
+  * datasource
+  * username
+  * passowrd
+
+This information is stored in '~/.vbdi_history' file. You can use with typing
+<tab> in prompt above. Ok, you'll see tables which user can refer in his grant
+schemes. Datasource is used as parameter of DBI(perl database driver mdoules)
+like following.
+
+SQLite: >
+  dbi:SQLite:dbname=/path/to/database/foo.db
+<
+MySQL: >
+  dbi:mysql:database=foo
+<
+PostgreSQL: >
+  dbi:Pg:dbname=foo
+<
+Oracle: >
+  dbi:Oracle:foo
+<
+  NOTE: Currently, VDBI don't support Oracle.
+
+1. Data Viewer                                                     *vbdi-viewer*
+
+Table Viewer >
+ dbi:SQLite:dbname=c:/temp/foo.db
+ > tables
+ | TABLE_CAT | TABLE_SCHEM | TABLE_NAME | TABLE_TYPE | REMARKS | ... |
+ |-----------+-------------+------------+------------+---------+-----|
+ | NULL      | main        | bar        | TABLE      | NULL    | ... |
+ | NULL      | main        | foo        | TABLE      | NULL    | ... |
+<
+Column Viewer >
+ dbi:SQLite:dbname=c:/temp/foo.db
+ > columns
+ | TABLE_CAT | TABLE_SCHEM | TABLE_NAME | COLUMN_NAME | ... | TYPE_NAME | ...
+ |-----------+-------------+------------+-------------+-----+-----------+----
+ | 0         | main        | foo        | id          | ... | number    | ...
+ | 0         | main        | foo        | text        | ... | string    | ...
+<
+viewer has following key mappings.
+
+  q         : hide window.
+  <cr>      : enter Column Viewer.
+  <leader>s : enter Query Window.
+  <leader>d : select dataset from table which is pointed at cursor.
+  <leader>y : yank current field.
+
+2. Query Editor                                                     *vbdi-query*
+
+>
+ dbi:SQLite:dbname=c:/temp/foo.db
+ > select * from foo
+ | id | text |
+ |----+------|
+ | 1  | foo  |
+ | 2  | bar  |
+<
+viewer has following key mappings for normal mode.
+
+  q         : hide window.
+  <leader>e : execute SQL. (also for insert mode)
+  <leader>r : open history window.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:fen:fdl=0:
