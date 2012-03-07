@@ -145,10 +145,12 @@ my %methods = (
 );
 
 my $app = sub {
-    my $req = Plack::Request->new(@_);
+    my $env = shift;
+    my $req = Plack::Request->new($env);
     if ($req->path_info eq '/shutdown') {
         $methods{'disconnect'}->();
         kill 'KILL', $$;
+		$env->{'psgix.harakiri'} = 1;
         return;
     }
     local $RPC::XML::ALLOW_NIL = 1;
