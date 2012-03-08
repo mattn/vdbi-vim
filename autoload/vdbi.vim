@@ -218,8 +218,22 @@ function! vdbi#open_view(typ, label, rows)
 
   let lines = s:datasource . "\n"
   let lines .= "> " . a:label . "\n"
-  if type(a:rows) == 3
-    let rows = s:fill_columns(a:rows)
+  let rows = a:rows
+  if type(rows) == 3 && len(rows) > 1000
+    let ans = confirm(printf('%d records exists.', len(rows)), join([
+    \ "&1 Keep it up.",
+    \ "&2 Truncate to 1000 records.",
+    \ "&3 Discard results."], "\n"), 1)
+    if ans == 2
+      let rows = rows[0:999]
+      call s:message('Tuncated to 1000 records.')
+    elseif ans == 3
+      unlet rows
+      let rows = 'Canceled.'
+    endif
+  endif
+  if type(rows) == 3
+    let rows = s:fill_columns(rows)
     for c in rows[0]
       exe printf('syntax match VdbiDataSet "\%%>%dc|" contains=VdbiDataSetSep', len(c))
     endfor
@@ -238,7 +252,7 @@ function! vdbi#open_view(typ, label, rows)
     syntax match VdbiHeader "^\w.*"
     syntax match VdbiLabel /^>\ze/
     syntax match VdbiStatement /^> \(.\+\)/hs=s+2 contains=VdbiLabel
-    let lines .= a:rows
+    let lines .= rows
   endif
   silent put! =lines
   normal! Gddgg
