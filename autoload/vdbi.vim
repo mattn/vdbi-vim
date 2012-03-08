@@ -123,7 +123,9 @@ function! s:do_select()
     let title = getline(3)
     let schem = s:get_field_value('TABLE_SCHEM')
     let table = s:get_field_value('TABLE_NAME')
-    let sql = printf('select * from %s.%s', schem, table)
+    let sql = s:get_driver_params('data_sql')
+    let sql = substitute(sql, '%table%', schem.'.'.table, 'g')
+    let sql = substitute(sql, '%limit%', get(g:, 'vdbi_data_count', 50), 'g')
     call vdbi#execute(sql)
   endif
 endfunction
