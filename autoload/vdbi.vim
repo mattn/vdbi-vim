@@ -301,7 +301,7 @@ function! vdbi#show_error()
     let err = ''
   endtry
   if type(err) == 3 && err[2] != ''
-    call s:error(err)
+    call s:error(err[2])
   else
     call s:error('Failed to connect server')
   endif
