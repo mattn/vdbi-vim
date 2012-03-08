@@ -300,8 +300,12 @@ function! vdbi#show_error()
   catch
     let err = ''
   endtry
-  if type(err) == 3 && type(err[1]) == 1 && err[1] != ''
-    call s:error(err[1])
+  if type(err) == 3
+    if type(err[1]) == 1 && err[1] != ''
+      call s:error(err[1])
+    else
+      call s:message('Succeeded: ' . string(err))
+    endif
   else
     call s:error('God an error: ' . string(err))
   endif
