@@ -363,7 +363,7 @@ function! s:startup_vdbi()
       endif
     catch
       let s:datasource = ''
-      call vdbi#show_error()
+      call s:error(v:exception)
       return 0
     endtry
   endif
