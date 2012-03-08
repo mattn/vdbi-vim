@@ -17,7 +17,8 @@ my %methods = (
         if ($dbh) {
             eval { $dbh->disconnect(); }
         }
-        our $dbh = DBI->connect($data_source, $username, $auth);
+        my $opt = $data_source =~ /^dbi:Oracle:/ ? {ora_charset => 'AL32UTF8'} : undef;
+        our $dbh = DBI->connect($data_source, $username, $auth, $opt);
         return $dbh->get_info(18);
     },
     'do' => sub {
@@ -142,16 +143,16 @@ my %methods = (
         return undef unless $sth;
         return [$sth->{NAME}, $sth->fetchall_arrayref()];
     },
-    'shutdown' => sub {
-        $methods{'disconnect'}->();
-        $env->{'psgix.harakiri'} = 1;
-        return 1;
-    },
 );
 
 my $app = sub {
     my $env = shift;
     my $req = Plack::Request->new($env);
+    if ($req->path_info eq '/shutdown') {
+        $methods{'disconnect'}->();
+		$env->{'psgix.harakiri'} = 1;
+        return [ 200, [ 'Content-Type', 'text/text' ], [ 'OK' ] ];
+    }
     local $RPC::XML::ALLOW_NIL = 1;
     local $RPC::XML::ENCODING = 'utf-8';
     my $q = RPC::XML::ParserFactory->new()->parse($req->content);
