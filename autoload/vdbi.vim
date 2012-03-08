@@ -336,8 +336,15 @@ function! s:startup_vdbi()
   if len(s:datasource) == 0
     if s:datasource == '' | let s:datasource = input('DataSource: ', '', 'customlist,vdbi#datasource_history') | endif
     if len(s:datasource) == 0 | return 0 | endif
-    let username = input('Username: ')
-    let password = inputsecret('Password: ')
+    let i = index(map(deepcopy(s:history.datasource), 'v:val[0]'), s:datasource)
+    if i != -1
+      let username = s:history.datasource[i][1]
+      let password = s:history.datasource[i][2]
+    else
+      let [username, password] = ['', '']
+    endif
+    let username = input('Username: ', username)
+    let password = inputsecret('Password: ', password)
 
     try
       augroup VDBI
