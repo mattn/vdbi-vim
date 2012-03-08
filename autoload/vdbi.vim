@@ -29,6 +29,7 @@ let s:perl_file = expand('<sfile>:h') . '/app.psgi'
 
 let s:history = get(s:, 'history', {"datasource":[], "sql":[]})
 let s:datasource = get(s:, 'datasource', '')
+let s:start_server = get(s:, 'start_server', 0)
 
 let s:null = function('json#null')
 let s:driver_param = {
@@ -217,7 +218,6 @@ function! vdbi#open_view(typ, label, rows)
     setlocal filetype=vdbi conceallevel=3 concealcursor=nvic
     auto CursorMoved <buffer> call s:cursor_moved()
     auto BufWipeout <buffer> call vdbi#shutdown()
-    auto VimLeavePre * call vdbi#shutdown()
     hi def link VdbiDataSetSep Ignore
     hi link VdbiDataSet SpecialKey
     hi link VdbiHeader Title
@@ -308,10 +308,10 @@ function! vdbi#show_error()
 endfunction
 
 function! vdbi#shutdown()
-  if len(s:datasource) > 0
+  if s:start_server == 1
     if get(g:, 'vdbi_use_external_server', 0) == 0
       try
-        call http#get(s:url . 'shutdown')
+        echo http#get(s:uri . 'shutdown')
       catch
       endtry
     endif
@@ -335,8 +335,13 @@ function! s:startup_vdbi()
     let password = inputsecret('Password: ')
 
     try
+      augroup VDBI
+        au!
+        auto VimLeavePre * call vdbi#shutdown()
+      augroup END
       call s:message('Connecting to server...')
       if get(g:, 'vdbi_use_external_server', 0) == 0
+        let s:start_server = 1
         let port = get(g:, 'vdbi_server_port', 9876)
         if has('win32') || has('win64')
           silent exe '!start /b plackup --port '.port.' '.shellescape(s:perl_file)
