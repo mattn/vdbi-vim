@@ -341,9 +341,9 @@ function! s:fill_columns(rows)
         let s = string(rows[r][c])
         if s == "function('xmlrpc#nil')"
           let rows[r][c] = 'NULL'
-        elseif s == "function('xmlrc#true')"
+        elseif s == "function('xmlrpc#true')"
           let rows[r][c] = 'true'
-        elseif s == "function('xmlrc#false')"
+        elseif s == "function('xmlrpc#false')"
           let rows[r][c] = 'false'
         endif
       endif
