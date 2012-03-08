@@ -30,7 +30,7 @@ $ git clone https://github.com/mattn/webapi-vim
 ```
 
 ```
-$ cpanm DBI Plack RPC::XML RPC::XML::ParserFactory
+$ cpanm DBI Plack JSON
 ```
 
 License:
