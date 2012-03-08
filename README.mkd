@@ -3,6 +3,10 @@ vdbi-vim
 
 Database client for Vim.
 
+![](http://mattn.github.com/vdbi-vim/images/screenshot1.png)
+
+![](http://mattn.github.com/vdbi-vim/images/screenshot2.png)
+
 Usage:
 ------
 

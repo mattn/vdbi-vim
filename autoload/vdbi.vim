@@ -30,6 +30,30 @@ let s:perl_file = expand('<sfile>:h') . '/app.psgi'
 let s:history = get(s:, 'history', {"datasource":[], "sql":[]})
 let s:datasource = get(s:, 'datasource', '')
 
+let s:null = function('json#null')
+let s:driver_param = {
+\  'sqlite' : {
+\    'data_sql' : 'select * from %table% limit %limit%',
+\    'table_info_args' : [s:null, s:null, s:null, s:null],
+\    'column_info_args' : [s:null, s:null, s:null, s:null],
+\  },
+\  'mysql' : {
+\    'data_sql' : 'select * from %table% limit %limit%',
+\    'table_info_args' : [s:null, s:null, s:null, s:null],
+\    'column_info_args' : [s:null, s:null, s:null, '%'],
+\  },
+\  'pg' : {
+\    'data_sql' : 'select * from %table% limit %limit%',
+\    'table_info_args' : [s:null, s:null, s:null, s:null],
+\    'column_info_args' : [s:null, s:null, s:null, s:null],
+\  },
+\  'oracle' : {
+\    'data_sql' : 'select * from %table% where rownum <= %limit%',
+\    'table_info_args' : [s:null, s:null, s:null, s:null],
+\    'column_info_args' : [s:null, s:null, s:null, '%'],
+\  },
+\}
+
 if empty(s:history.datasource) && filereadable(s:hist_file)
   let s:history = eval(join(readfile(s:hist_file), ''))
 endif
@@ -370,17 +394,35 @@ function! s:fill_columns(rows)
   return rows
 endfunction
 
+function! s:get_driver_params(cat)
+  let token = split(s:datasource, ':')
+  if len(token) > 2
+    let driver = tolower(token[1])
+    if has_key(s:driver_param, driver) && has_key(s:driver_param[driver], a:cat)
+      return s:driver_param[driver][a:cat]
+    endif
+  endif
+  throw "Unknown driver"
+endfunction
+
 function! vdbi#columns(scheme, table)
   if !s:startup_vdbi() | return | endif
 
   call vdbi#clear_view()
   call s:message('Listing column infomations...')
 
+  let old_allow_null = get(g:, 'json#allow_null', 0)
   try
-    let rows = s:vdbi.column_info('', a:scheme, a:table, '%')
+    let g:json#allow_null = 1
+    let param = s:get_driver_params('column_info_args')
+    let param[1] = a:scheme
+    let param[2] = a:table
+    let rows = call(s:vdbi['column_info'], param, s:vdbi)
     let rows = extend([rows[0]], rows[1])
   catch
     let rows = 0
+  finally
+    let g:json#allow_null = old_allow_null
   endtry
 
   if type(rows) != 3
@@ -399,8 +441,8 @@ function! vdbi#tables()
   let old_allow_null = get(g:, 'json#allow_null', 0)
   try
     let g:json#allow_null = 1
-    let Null = function('json#null')
-    let rows = s:vdbi.table_info(Null, Null, '%', Null)
+    let param = s:get_driver_params('table_info_args')
+    let rows = call(s:vdbi['table_info'], param, s:vdbi)
     let rows = extend([rows[0]], rows[1])
   catch
     let rows = 0
