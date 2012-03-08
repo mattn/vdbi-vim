@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>VDBI : Database client for vim</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="bootstrap.min.css" rel="stylesheet">
+  </head>
+
+  <body data-spy="scroll" data-target=".subnav" data-offset="50">
+
+<div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="../">VDBI</a>
+      <span>database client for vim</span>
+    </div>
+  </div>
+</div>
+<br /><br /><br />
+
+<div class="container">
+<section id="typography">
+  <div class="row">
+      
+    <div class="span12">
+      <h3>Introduction</h3>
+      <p>If you want to access database, are you escape from vim? Or start shell like application? Or start GUI database cilent?</p>
+      <p>Don't leave there if using VDBI.</p>
+    </div>
+
+    <div class="span12">
+      <h3>Feature</h3>
+      <ul>
+        <li>Browsing tables</li>
+        <li>Browsing columns</li>
+        <li>Easy operations.</li>
+        <li>Data viewer.</li>
+      </ul>
+    </div>
+
+    <div class="span12">
+      <h3>Screenshot</h3>
+	  <p>Table Browser</p>
+	  <img src="images/screenshot1.png" alt="table browser" /><br />
+	  <br />
+	  <p>Data Viewer</p>
+	  <img src="images/screenshot2.png" alt="data viewer" /><br />
+	  <br />
+    </div>
+
+    <div class="span12">
+      <h3>Requirements</h3>
+      <ul>
+        <li>vim webapi-vim https://github.com/mattn/webapi-vim</li>
+        <li>perl Plack</li>
+      </ul>
+    </div>
+
+    <div class="span12">
+      <h3>Installation</h3>
+	  webapi-vim
+	  <pre><code>
+$ cd ~/.vim/bundle
+$ git clone https://github.com/mattn/webapi-vim
+$ git clone https://github.com/mattn/vdbi-vim
+	  </code></pre>
+	  perl modules
+	  <pre><code>
+$ cpanm DBI Plack RPC::XML RPC::XML::ParserFactory
+	  </code></pre>
+	  vdbi
+	  <pre><code>
+	  </code></pre>
+    </div>
+
+    <div class="span12">
+      <h3>License</h3>
+	  <p>BSD style license</p>
+    </div>
+
+    <div class="span12">
+      <h3>Author</h3>
+      <address>
+        <strong>Yasuhiro Matsumoto</strong><br />
+        <a href="mailto:#">mattn.jp@gmail.com</a>
+      </address>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <p class="pull-right"><a href="#">Back to top</a></p>
+</footer>
+
+</div>
+
+  </body>
+</html>
