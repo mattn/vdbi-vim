@@ -161,14 +161,15 @@ endfunction
 
 function! s:do_query()
   let sql = join(getline(1, line('$')))
-  bw!
-  call vdbi#execute(sql)
-  if index(s:history.sql, sql) == -1
-    call add(s:history.sql, sql)
-    if len(s:history.sql) >= 10
-      let s:history.sql = s:history.sql[-10:]
+  if vdbi#execute(sql) == 0
+    if index(s:history.sql, sql) == -1
+      call add(s:history.sql, sql)
+      if len(s:history.sql) >= 10
+        let s:history.sql = s:history.sql[-10:]
+      endif
+      call writefile([string(s:history)], s:hist_file)
     endif
-    call writefile([string(s:history)], s:hist_file)
+    bw!
   endif
 endfunction
 
@@ -320,16 +321,16 @@ function! vdbi#shutdown()
       catch
       endtry
     endif
-    let s:datasource = ''
   endif
+  let s:datasource = ''
 endfunction
 
 function! vdbi#sql_history(...)
-  return filter(s:history.sql, 'len(v:val)>0')
+  return filter(reverse(deepcopy(s:history.sql)), 'len(v:val)>0')
 endfunction
 
 function! vdbi#datasource_history(...)
-  return map(deepcopy(s:history.datasource), 'v:val[0]')
+  return map(reverse(deepcopy(s:history.datasource)), 'v:val[0]')
 endfunction
 
 function! s:startup_vdbi()
@@ -477,7 +478,7 @@ function! vdbi#tables()
 endfunction
 
 function! vdbi#execute(query)
-  if !s:startup_vdbi() | return | endif
+  if !s:startup_vdbi() | return 0 | endif
 
   call vdbi#clear_view()
   call s:message('Executing query...')
@@ -506,6 +507,7 @@ function! vdbi#execute(query)
   else
     call vdbi#open_view('query', a:query, printf("%d rows affected.", res))
   endif
+  return 1
 endfunction
 
 " vim:set et:
