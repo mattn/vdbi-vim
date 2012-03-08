@@ -4,17 +4,16 @@ use strict;
 use warnings;
 use utf8;
 use DBI;
+use JSON;
 use Plack::Request;
 use Plack::Builder;
-use RPC::XML;
-use RPC::XML::ParserFactory;
 
 our $dbh = undef;
 our $sth = undef;
 
 my %methods = (
     'connect' => sub {
-        my ($data_source, $username, $auth) = map { $_->value } @_;
+        my ($data_source, $username, $auth) = @_;
         if ($dbh) {
             eval { $dbh->disconnect(); }
         }
@@ -24,26 +23,26 @@ my %methods = (
     },
     'do' => sub {
         return undef unless $dbh;
-        my ($sql, $params) = map { $_->value } @_;
+        my ($sql, $params) = @_;
         my $rows = $dbh->do($sql, undef, @$params);
         return $rows;
     },
     'select_all' => sub {
         return undef unless $dbh;
-        my ($sql, $params) = map { $_->value } @_;
+        my ($sql, $params) = @_;
         my $rows = $dbh->selectall_arrayref($sql, undef, @$params);
         return $rows;
     },
     'prepare' => sub {
         return undef unless $dbh;
         $sth->finish() if $sth;
-        my ($sql) = map { $_->value } @_;
+        my ($sql) = @_;
         our $sth = $dbh->prepare($sql) or return undef;
         return 'sth';
     },
     'execute' => sub {
         return undef unless $sth;
-        my ($params) = map { $_->value } @_;
+        my ($params) = @_;
         return $sth->execute(@$params) or return undef;
     },
     'fetch_columns' => sub {
@@ -52,7 +51,7 @@ my %methods = (
     },
     'fetch' => sub {
         return undef unless $sth;
-        my ($num) = map { $_->value } @_;
+        my ($num) = @_;
         if (!defined($num) || $num eq -1) {
             return $sth->fetchall_arrayref();
         } else {
@@ -67,7 +66,7 @@ my %methods = (
     },
     'auto_commit' => sub {
         return undef unless $dbh;
-        my ($flag) = map { $_->value } @_;
+        my ($flag) = @_;
         if ($flag eq "true") {
             $dbh->{AutoCommit} = 1;
             return 1;
@@ -108,7 +107,7 @@ my %methods = (
         eval {
             $sth->finish() if $sth;
         };
-        my ($catalog, $schema, $table, $type) = map { $_->value } @_;
+        my ($catalog, $schema, $table, $type) = @_;
         $sth = $dbh->table_info( $catalog, $schema, $table, $type );
         return [$sth->{NAME}, grep { $_ } $sth->fetchall_arrayref()];
     },
@@ -117,7 +116,7 @@ my %methods = (
         eval {
             $sth->finish() if $sth;
         };
-        my ($catalog, $schema, $table, $column) = map { $_->value } @_;
+        my ($catalog, $schema, $table, $column) = @_;
         $sth = $dbh->column_info( $catalog, $schema, $table, $column );
         return [[],[]] unless $sth;
         return [$sth->{NAME}, $sth->fetchall_arrayref()];
@@ -127,7 +126,7 @@ my %methods = (
         eval {
             $sth->finish() if $sth;
         };
-        my ($catalog, $schema, $table) = map { $_->value } @_;
+        my ($catalog, $schema, $table) = @_;
         $sth = $dbh->primary_key_info( $catalog, $schema, $table );
         return undef unless $sth;
         return [$sth->{NAME}, $sth->fetchall_arrayref()];
@@ -137,8 +136,7 @@ my %methods = (
         eval {
             $sth->finish() if $sth;
         };
-        my ($pkcatalog, $pkschema, $pktable, $fkcatalog, $fkschema, $fktable)
-            = map { $_->value } @_;
+        my ($pkcatalog, $pkschema, $pktable, $fkcatalog, $fkschema, $fktable) = @_;
         $sth = $dbh->foreign_key_info( $pkcatalog, $pkschema, $pktable,
                                        $fkcatalog, $fkschema, $fktable );
         return undef unless $sth;
@@ -154,15 +152,19 @@ my $app = sub {
         $env->{'psgix.harakiri'} = 1;
         return [ 200, [ 'Content-Type', 'text/text' ], [ 'OK' ] ];
     }
-    local $RPC::XML::ALLOW_NIL = 1;
-    local $RPC::XML::ENCODING = 'utf-8';
-    my $q = RPC::XML::ParserFactory->new()->parse($req->content);
-    my $method_name = $q->name;
-    my $code = $methods{$method_name} or return [404, [], ["not found: $method_name"]];
-    my $rpc_res = RPC::XML::response->new($code->(@{$q->args}));
-    my $resp = $rpc_res->as_string;
+    my $json = from_json($req->content);
+    my $id = $json->{id} || '';
+    my $method = $json->{method} || '';
+    my $params = $json->{params} || [];
+    my $code = $methods{$method} or return [404, [], ["not found: $method"]];
+    my $result = eval { $code->(@{$params}) };
+    my $resp = to_json({
+        id => $id,
+        error => $@,
+        result => $result,
+    });
     utf8::encode($resp) if utf8::is_utf8($resp) && $resp =~ /[^\x00-\x7f]/;
-    return [ 200, [ 'Content-Type', 'text/xml' ], [ $resp ] ];
+    return [ 200, [ 'Content-Type', 'text/json' ], [ $resp ] ];
 };
 
 builder {

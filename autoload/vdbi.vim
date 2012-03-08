@@ -7,7 +7,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 let s:uri = 'http://localhost:9876/'
-let s:vdbi = xmlrpc#wrap([
+let s:vdbi = jsonrpc#wrap([
 \ {'uri': s:uri, 'name': 'connect',          'argnames': ['data_source', 'username', 'auth']},
 \ {'uri': s:uri, 'name': 'do',               'argnames': ['sql', 'params']},
 \ {'uri': s:uri, 'name': 'select_all',       'argnames': ['sql', 'params']},
@@ -339,11 +339,11 @@ function! s:fill_columns(rows)
     for r in range(len(w))
       if type(rows[r][c]) == 2
         let s = string(rows[r][c])
-        if s == "function('xmlrpc#nil')"
+        if s == "function('json#null')"
           let rows[r][c] = 'NULL'
-        elseif s == "function('xmlrpc#true')"
+        elseif s == "function('json#true')"
           let rows[r][c] = 'true'
-        elseif s == "function('xmlrpc#false')"
+        elseif s == "function('json#false')"
           let rows[r][c] = 'false'
         endif
       endif
@@ -383,16 +383,16 @@ function! vdbi#tables()
   call vdbi#clear_view()
   call s:message('Listing table infomations...')
 
-  let old_allow_nil = get(g:, 'xmlrpc#allow_nil', 0)
+  let old_allow_null = get(g:, 'json#allow_null', 0)
   try
-    let g:xmlrpc#allow_nil = 1
-    let Nil = function('xmlrpc#nil')
-    let rows = s:vdbi.table_info(Nil, Nil, '%', Nil)
+    let g:json#allow_null = 1
+    let Null = function('json#null')
+    let rows = s:vdbi.table_info(Null, Null, '%', Null)
     let rows = extend([rows[0]], rows[1])
   catch
     let rows = 0
   finally
-    let g:xmlrpc#allow_nil = old_allow_nil
+    let g:json#allow_null = old_allow_null
   endtry
 
   if type(rows) != 3
@@ -408,9 +408,9 @@ function! vdbi#execute(query)
   call vdbi#clear_view()
   call s:message('Executing query...')
 
-  let old_allow_nil = get(g:, 'xmlrpc#allow_nil', 0)
+  let old_allow_null = get(g:, 'json#allow_null', 0)
   try
-    let g:xmlrpc#allow_nil = 1
+    let g:json#allow_null = 1
     call s:vdbi.prepare(a:query)
     let res = s:vdbi.execute([])
     let cols = s:vdbi.fetch_columns()
@@ -422,7 +422,7 @@ function! vdbi#execute(query)
     if exists('l:rows') | unlet rows | endif
     let rows = 0
   finally
-    let g:xmlrpc#allow_nil = old_allow_nil
+    let g:json#allow_null = old_allow_null
   endtry
 
   if type(rows) != 3
