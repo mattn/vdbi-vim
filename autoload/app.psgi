@@ -17,7 +17,10 @@ my %methods = (
         if ($dbh) {
             eval { $dbh->disconnect(); }
         }
-        my $opt = $data_source =~ /^dbi:Oracle:/ ? {ora_charset => 'AL32UTF8'} : undef;
+        my $opt =
+          $data_source =~ /^dbi:Oracle:/ ? {ora_charset => 'AL32UTF8'} :
+          $data_source =~ /^dbi:SQLite:/ ? {sqlite_unicode => 1} :
+          undef;
         our $dbh = DBI->connect($data_source, $username, $auth, $opt);
         return $dbh->get_info(18);
     },
