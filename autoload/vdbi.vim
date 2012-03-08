@@ -50,24 +50,24 @@ function! s:do_tab(dir)
     let title = getline(3)
     let pos = getpos('.')
     if a:dir > 0
-	  let next = stridx(title, '|', col('.')-1)
+      let next = stridx(title, '|', col('.')-1)
       if next == -1 | return | endif
       if next + 1 >= len(title)
-	    let pos[1] += 1
-	    let pos[2] = 2
+        let pos[1] += 1
+        let pos[2] = 2
       else
-	    let pos[2] = next + 2
+        let pos[2] = next + 2
       endif
     else
-	  let prev = strridx(title, '|', col('.')-1)
-	  let prev = strridx(title, '|', prev-1)
+      let prev = strridx(title, '|', col('.')-1)
+      let prev = strridx(title, '|', prev-1)
       if prev == -1
         if pos[1] > 5
-	      let pos[1] -= 1
+          let pos[1] -= 1
         endif
-	    let pos[2] = strridx(title, '|', len(title) - 2) + 2
+        let pos[2] = strridx(title, '|', len(title) - 2) + 2
       else
-	    let pos[2] = prev + 2
+        let pos[2] = prev + 2
       endif
     endif
     call setpos('.', pos)
@@ -77,10 +77,10 @@ endfunction
 function! s:do_yank()
   if line('.') > 4 && getline('.') =~ '^|'
     let title = getline(3)
-	let pos0 = col('.')-1
-	let pos1 = strridx(title, '|', pos0)
+    let pos0 = col('.')-1
+    let pos1 = strridx(title, '|', pos0)
     if pos1 == -1 || pos1 == pos0 | return | endif
-	let pos2 = stridx(title, '|', pos1 + 1)
+    let pos2 = stridx(title, '|', pos1 + 1)
     if pos2 == -1 | return | endif
     let data = strpart(getline('.'), pos1 + 2, pos2 - pos1 - 3)
     let data = matchstr(data, '\v^\s*\zs.{-}\ze\s*$')
@@ -98,8 +98,8 @@ endfunction
 function! s:do_select()
   if b:type == 'tables' && line('.') > 4 && getline('.') =~ '^|'
     let title = getline(3)
-	let schem = s:get_field_value('TABLE_SCHEM')
-	let table = s:get_field_value('TABLE_NAME')
+    let schem = s:get_field_value('TABLE_SCHEM')
+    let table = s:get_field_value('TABLE_NAME')
     let sql = printf('select * from %s.%s', schem, table)
     call vdbi#execute(sql)
   endif
@@ -108,8 +108,8 @@ endfunction
 function! s:do_action()
   if b:type == 'tables' && line('.') > 4 && getline('.') =~ '^|'
     let title = getline(3)
-	let schem = s:get_field_value('TABLE_SCHEM')
-	let table = s:get_field_value('TABLE_NAME')
+    let schem = s:get_field_value('TABLE_SCHEM')
+    let table = s:get_field_value('TABLE_NAME')
     call vdbi#columns(schem, table)
   endif
 endfunction
@@ -139,8 +139,8 @@ function! s:do_query()
   call vdbi#execute(sql)
   if index(s:history.sql, sql) == -1
     call add(s:history.sql, sql)
-	if len(s:history.sql) >= 10
-	  let s:history.sql = s:history.sql[-10:]
+    if len(s:history.sql) >= 10
+      let s:history.sql = s:history.sql[-10:]
     endif
     call writefile([string(s:history)], s:hist_file)
   endif
@@ -312,8 +312,8 @@ function! s:startup_vdbi()
           let password = ''
         endif
         call add(s:history.datasource, [s:datasource, username, password])
-	    if len(s:history.datasource) >= 10
-	      let s:history.datasource = s:history.datasource[-10:]
+        if len(s:history.datasource) >= 10
+          let s:history.datasource = s:history.datasource[-10:]
         endif
         call writefile([string(s:history)], s:hist_file)
       endif
@@ -390,7 +390,6 @@ function! vdbi#tables()
     let rows = s:vdbi.table_info(Nil, Nil, '%', Nil)
     let rows = extend([rows[0]], rows[1])
   catch
-	  echomsg v:exception
     let rows = 0
   finally
     let g:xmlrpc#allow_nil = old_allow_nil
@@ -434,3 +433,5 @@ function! vdbi#execute(query)
     call vdbi#open_view('query', a:query, printf("%d rows affected.", res))
   endif
 endfunction
+
+" vim:set et:
