@@ -303,7 +303,7 @@ function! vdbi#show_error()
   if type(err) == 3 && err[2] != ''
     call s:error(err[2])
   else
-    call s:error('Failed to connect server')
+    call s:error('God an error: ' . string(err))
   endif
 endfunction
 
