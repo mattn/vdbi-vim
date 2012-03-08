@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use utf8;
 use DBI;
 use Plack::Request;
 use Plack::Builder;
@@ -150,7 +151,7 @@ my $app = sub {
     my $req = Plack::Request->new($env);
     if ($req->path_info eq '/shutdown') {
         $methods{'disconnect'}->();
-		$env->{'psgix.harakiri'} = 1;
+        $env->{'psgix.harakiri'} = 1;
         return [ 200, [ 'Content-Type', 'text/text' ], [ 'OK' ] ];
     }
     local $RPC::XML::ALLOW_NIL = 1;
@@ -159,7 +160,9 @@ my $app = sub {
     my $method_name = $q->name;
     my $code = $methods{$method_name} or return [404, [], ["not found: $method_name"]];
     my $rpc_res = RPC::XML::response->new($code->(@{$q->args}));
-    return [ 200, [ 'Content-Type', 'text/xml' ], [ $rpc_res->as_string ] ];
+    my $resp = $rpc_res->as_string;
+    utf8::encode($resp) if utf8::is_utf8($resp) && $resp =~ /[^\x00-\x7f]/;
+    return [ 200, [ 'Content-Type', 'text/xml' ], [ $resp ] ];
 };
 
 builder {
