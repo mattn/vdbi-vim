@@ -150,7 +150,7 @@ my $app = sub {
     if ($req->path_info eq '/shutdown') {
         $methods{'disconnect'}->();
         $env->{'psgix.harakiri'} = 1;
-        return [ 200, [ 'Content-Type', 'text/text' ], [ 'OK' ] ];
+        return [ 200, [ 'Content-Type', 'text/plain' ], [ 'OK' ] ];
     }
     my $json = from_json($req->content);
     my $id = $json->{id} || '';
