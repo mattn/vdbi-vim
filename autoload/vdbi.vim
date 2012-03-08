@@ -311,7 +311,7 @@ function! vdbi#shutdown()
   if s:start_server == 1
     if get(g:, 'vdbi_use_external_server', 0) == 0
       try
-        echo http#get(s:uri . 'shutdown')
+        call http#get(s:uri . 'shutdown')
       catch
       endtry
     endif
