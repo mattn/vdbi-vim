@@ -304,10 +304,11 @@ function! vdbi#show_error()
     if type(err[1]) == 1 && err[1] != ''
       call s:error(err[1])
     else
-      call s:message('Succeeded: ' . string(err))
+      " TODO: MySQL don't raise error.
+      call s:message('Something wrong: ' . string(err))
     endif
   else
-    call s:error('God an error: ' . string(err))
+    call s:error('Someting wrong: ' . string(err))
   endif
 endfunction
 
