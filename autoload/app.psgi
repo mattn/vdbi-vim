@@ -40,7 +40,7 @@ my %methods = (
         return undef unless $dbh;
         $sth->finish() if $sth;
         my ($sql) = @_;
-        our $sth = $dbh->prepare($sql) or return undef;
+        our $sth = $dbh->prepare($sql) or die $dbh->errstr;
         return 'sth';
     },
     'execute' => sub {
