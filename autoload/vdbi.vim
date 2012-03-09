@@ -355,7 +355,8 @@ function! s:startup_vdbi()
       call s:message('Connecting to server...')
       if get(g:, 'vdbi_use_external_server', 0) == 0
         let s:start_server = 1
-        let port = get(g:, 'vdbi_server_port', 9876)
+        let port = str2nr(matchlist(s:uri, '^https\?://\%([^:]\+:\(\d\+\)\|.*\)')[1])
+        let port = port ? port : 80
         if has('win32') || has('win64')
           silent exe '!start /b plackup --port '.port.' '.shellescape(s:perl_file)
         else
