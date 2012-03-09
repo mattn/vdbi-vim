@@ -155,6 +155,9 @@ my $webui = do { local $/; <DATA> };
 my $app = sub {
     my $env = shift;
     my $req = Plack::Request->new($env);
+    unless ($ENV{VDBI_PUBLIC} or $req->address eq '127.0.0.1') {
+        return [403, [], ["Forbidden"]];
+    }
     if ($req->path_info eq '/shutdown') {
         $methods{'disconnect'}->();
         # TODO: does not work
