@@ -174,7 +174,7 @@ my $app = sub {
         my $result = eval { $code->(@{$params}) };
         my $resp = to_json({
             id => $id,
-            error => $@,
+            error => $@ ? $@ : undef,
             result => $result,
         });
         utf8::encode($resp) if utf8::is_utf8($resp) && $resp =~ /[^\x00-\x7f]/;
