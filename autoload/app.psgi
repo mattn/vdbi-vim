@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use utf8;
 use DBI;
+use Encode qw/decode_utf8/;
 use JSON;
 use Plack::Request;
 use Plack::Builder;
@@ -159,7 +160,7 @@ my $app = sub {
         kill 'KILL', $$;
         return [ 200, [ 'Content-Type', 'text/plain' ], [ 'OK' ] ];
     }
-    my $json = from_json($req->content);
+    my $json = from_json(decode_utf8 $req->content);
     my $id = $json->{id} || '';
     my $method = $json->{method} || '';
     my $params = $json->{params} || [];
