@@ -21,7 +21,7 @@ ToDo                   |vdbi-todo|
 ==============================================================================
 INTRODUCTION                                            *vbdi-introduction* *vbdi*
 
-|VBDI| is vim application which can manipulate database. This plugin works: 
+|VBDI| is vim application which can manipulate database. This plugin works:
 
  * view tables
  * view columns of the table
@@ -108,6 +108,23 @@ viewer has following key mappings for normal mode.
   q         : hide window.
   <leader>e : execute SQL. (also for insert mode)
   <leader>r : open history window.
+
+3. Datasource Viewer                                    *vbdi-datasource-viewer*
+
+Type |:VDBIDatasouce| shows all datasources which is stored in ~/.vdbi_history
+file.
+You can choose datasource and type <cr> to open Table Viewer.
+and password.
+
+>
+  dbi:SQLite:dbname=/path/to/database/foo.db
+  dbi:mysql:database=foo
+  dbi:Pg:dbname=foo
+  dbi:Oracle:foo
+<
+Datasource viewer has following key mapping for normal mode.
+  q         : hide window.
+  <cr>      : enter Table Viewer.
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:noet:fen:fdl=0:

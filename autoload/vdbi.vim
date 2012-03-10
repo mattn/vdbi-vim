@@ -333,19 +333,64 @@ function! vdbi#datasource_history(...)
   return map(reverse(deepcopy(s:history.datasource)), 'v:val[0]')
 endfunction
 
-function! s:startup_vdbi()
+function! vdbi#show_datasources()
+  if len(s:datasource) > 0
+    call vdbi#shutdown()
+  endif
+
+  if !bufexists('[VDBI:Datasources]')
+    silent botright 5split
+    silent edit `='[VDBI:Datasources]'`
+    setlocal bufhidden=wipe buftype=nofile noswapfile nobuflisted
+    setlocal filetype=vdbi conceallevel=3 concealcursor=nvic
+    setlocal nowrap
+    nnoremap <buffer> <silent> q :bw!<cr>
+    nnoremap <buffer> <silent> <cr> :call <SID>startup_vdbi_from_history()<cr>
+    hi link VdbiHeader Title
+    syntax match VdbiHeader "^\w.*"
+    let datasources = vdbi#datasource_history()
+    for datasource in datasources
+      silent! execute 'normal! O' . datasource
+    endfor
+    silent! execute 'normal! Gddgg'
+    setlocal nomodifiable
+  else
+    call vdbi#tables()
+  endif
+endfunction
+
+function! s:startup_vdbi_from_history()
+  let datasource = getline('.')
+  hide
+  if !s:startup_vdbi(datasource) | return | endif
+  call s:tables()
+endfunction
+
+function! s:startup_vdbi(...)
   if len(s:datasource) == 0
-    if s:datasource == '' | let s:datasource = input('DataSource: ', '', 'customlist,vdbi#datasource_history') | endif
-    if len(s:datasource) == 0 | return 0 | endif
-    let i = index(map(deepcopy(s:history.datasource), 'v:val[0]'), s:datasource)
-    if i != -1
+    let history_datasource = ''
+    if a:0 > 0
+      let history_datasource = a:1
+    endif
+
+    if history_datasource == ''
+      if s:datasource == '' | let s:datasource = input('DataSource: ', '', 'customlist,vdbi#datasource_history') | endif
+      if len(s:datasource) == 0 | return 0 | endif
+      let i = index(map(deepcopy(s:history.datasource), 'v:val[0]'), s:datasource)
+      if i != -1
+        let username = s:history.datasource[i][1]
+        let password = s:history.datasource[i][2]
+      else
+        let [username, password] = ['', '']
+      endif
+      let username = input('Username: ', username)
+      let password = inputsecret('Password: ', password)
+    else
+      let s:datasource = history_datasource
+      let i = index(map(deepcopy(s:history.datasource), 'v:val[0]'), s:datasource)
       let username = s:history.datasource[i][1]
       let password = s:history.datasource[i][2]
-    else
-      let [username, password] = ['', '']
     endif
-    let username = input('Username: ', username)
-    let password = inputsecret('Password: ', password)
 
     try
       augroup VDBI
@@ -455,7 +500,10 @@ endfunction
 
 function! vdbi#tables()
   if !s:startup_vdbi() | return | endif
+  call s:tables()
+endfunction
 
+function! s:tables()
   call vdbi#clear_view()
   call s:message('Listing table infomations...')
 
