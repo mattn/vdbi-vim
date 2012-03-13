@@ -217,7 +217,7 @@ function! vdbi#open_view(typ, label, rows)
     silent edit `='[VDBI:View]'`
     setlocal bufhidden=hide buftype=nofile noswapfile nobuflisted
     setlocal filetype=vdbi conceallevel=3 concealcursor=nvic
-    setlocal nowrap
+    setlocal nowrap nonumber nolist
     auto CursorMoved <buffer> call s:cursor_moved()
     auto BufWipeout <buffer> call vdbi#shutdown()
     hi def link VdbiDataSetSep Ignore
