@@ -7,7 +7,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 let s:uri = 'http://localhost:9876/'
-let s:vdbi = jsonrpc#wrap([
+let s:vdbi = webapi#jsonrpc#wrap([
 \ {'uri': s:uri, 'name': 'connect',          'argnames': ['data_source', 'username', 'auth']},
 \ {'uri': s:uri, 'name': 'do',               'argnames': ['sql', 'params']},
 \ {'uri': s:uri, 'name': 'select_all',       'argnames': ['sql', 'params']},
@@ -31,7 +31,7 @@ let s:history = get(s:, 'history', {"datasource":[], "sql":[]})
 let s:datasource = get(s:, 'datasource', '')
 let s:start_server = get(s:, 'start_server', 0)
 
-let s:null = function('json#null')
+let s:null = function('webapi#json#null')
 let s:driver_param = {
 \  'sqlite' : {
 \    'data_sql' : 'select * from %table% limit %limit%',
@@ -318,7 +318,7 @@ function! vdbi#shutdown()
   if s:start_server == 1
     if get(g:, 'vdbi_use_external_server', 0) == 0
       try
-        call http#get(s:uri . 'shutdown')
+        call webapi#http#get(s:uri . 'shutdown')
       catch
       endtry
     endif
@@ -443,11 +443,11 @@ function! s:fill_columns(rows)
     for r in range(len(w))
       if type(rows[r][c]) == 2
         let s = string(rows[r][c])
-        if s == "function('json#null')"
+        if s == "function('webapi#json#null')"
           let rows[r][c] = 'NULL'
-        elseif s == "function('json#true')"
+        elseif s == "function('webapi#json#true')"
           let rows[r][c] = 'true'
-        elseif s == "function('json#false')"
+        elseif s == "function('webapi#json#false')"
           let rows[r][c] = 'false'
         endif
       endif
@@ -478,9 +478,9 @@ function! vdbi#columns(scheme, table)
   call vdbi#clear_view()
   call s:message('Listing column infomations...')
 
-  let old_allow_null = get(g:, 'json#allow_null', 0)
+  let old_allow_null = get(g:, 'webapi#json#allow_null', 0)
   try
-    let g:json#allow_null = 1
+    let g:webapi#json#allow_null = 1
     let param = s:get_driver_params('column_info_args')
     let param[1] = a:scheme
     let param[2] = a:table
@@ -489,7 +489,7 @@ function! vdbi#columns(scheme, table)
   catch
     let rows = 0
   finally
-    let g:json#allow_null = old_allow_null
+    let g:webapi#json#allow_null = old_allow_null
   endtry
 
   if type(rows) != 3
@@ -508,16 +508,16 @@ function! s:tables()
   call vdbi#clear_view()
   call s:message('Listing table infomations...')
 
-  let old_allow_null = get(g:, 'json#allow_null', 0)
+  let old_allow_null = get(g:, 'webapi#json#allow_null', 0)
   try
-    let g:json#allow_null = 1
+    let g:webapi#json#allow_null = 1
     let param = s:get_driver_params('table_info_args')
     let rows = call(s:vdbi['table_info'], param, s:vdbi)
     let rows = extend([rows[0]], rows[1])
   catch
     let rows = 0
   finally
-    let g:json#allow_null = old_allow_null
+    let g:webapi#json#allow_null = old_allow_null
   endtry
 
   if type(rows) != 3
@@ -533,9 +533,9 @@ function! vdbi#execute(query)
   call vdbi#clear_view()
   call s:message('Executing query...')
 
-  let old_allow_null = get(g:, 'json#allow_null', 0)
+  let old_allow_null = get(g:, 'webapi#json#allow_null', 0)
   try
-    let g:json#allow_null = 1
+    let g:webapi#json#allow_null = 1
     call s:vdbi.prepare(a:query)
     let res = s:vdbi.execute([])
     let cols = s:vdbi.fetch_columns()
@@ -547,7 +547,7 @@ function! vdbi#execute(query)
     if exists('l:rows') | unlet rows | endif
     let rows = 0
   finally
-    let g:json#allow_null = old_allow_null
+    let g:webapi#json#allow_null = old_allow_null
   endtry
 
   if type(rows) != 3
