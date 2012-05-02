@@ -423,7 +423,7 @@ function! s:startup_vdbi(...)
       endif
     catch
       let s:datasource = ''
-      call s:error(v:exception)
+      call s:error("Can't connect to database. Did you install DBD driver?")
       return 0
     endtry
   endif
