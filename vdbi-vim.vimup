@@ -48,6 +48,9 @@ install_details: |
 
   you need to install database drivers you want to use.
 
+  # cpanm DBI Plack JSON
+  # cpanm ...extra-dbi-module...
+
 versions:
 - '0.1': |
    Initial upload
