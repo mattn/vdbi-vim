@@ -1,0 +1,56 @@
+script_name: VDBI: Interface to batabase for Vim
+script_type: utility
+script_package: vdbi-vim.zip
+script_version: '0.01'
+required_vim_version: '7.0'
+summary: vim plugins for HTML and CSS hi-speed coding.
+
+detailed_description: |
+
+  This is vim script to manipulate database.
+
+  ref: http://mattn.github.com/vdbi-vim/
+
+  Source Repository.
+  ref: http://github.com/mattn/vdbi-vim
+  
+  This plugin provides following interfaces.
+
+  * Browsing tables
+  * Browsing columns
+  * Easy operations.
+  * Data viewer.
+
+  Supported database.
+
+  * Oracle
+  * SQLite
+  * MySQL
+  * PostgreSQL
+
+  To start VDBI, type ':VDBI'.
+  To open query editor, type <leader>s.
+
+install_details: |
+
+  # cd ~/.vim
+  # unzip vdbi-vim.zip
+
+  or if you install pathogen.vim:
+
+  # cd ~/.vim/bundle # or make directory
+  # unzip /path/to/vdbi-vim.zip
+
+  if you get sources from repository:
+
+  # cd ~/.vim/bundle # or make directory
+  # git clone http://github.com/mattn/vdbi-vim.git
+
+  you need to install database drivers you want to use.
+
+versions:
+- '0.1': |
+   Initial upload
+
+# __END__
+# vim: filetype=yaml
