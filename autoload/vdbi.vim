@@ -175,7 +175,7 @@ endfunction
 
 function! s:do_sql()
   if !bufexists('[VDBI:Query]')
-    silent botright 5split
+    silent belowright 5split
     silent edit `='[VDBI:Query]'`
     setlocal bufhidden=wipe buftype=nofile noswapfile nobuflisted
     setlocal filetype=sql conceallevel=3 concealcursor=nvic
