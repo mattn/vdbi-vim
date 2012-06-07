@@ -65,8 +65,6 @@ PostgreSQL: >
 Oracle: >
   dbi:Oracle:foo
 <
-  NOTE: Currently, VDBI don't support Oracle.
-
 1. Data Viewer                                                     *vbdi-viewer*
 
 Table Viewer >
