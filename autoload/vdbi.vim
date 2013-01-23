@@ -115,6 +115,7 @@ function! s:do_yank()
     else
       let @+ = data
     endif
+    let @" = data
     call s:message('Yanked')
   endif
 endfunction
