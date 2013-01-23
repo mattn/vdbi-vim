@@ -539,9 +539,13 @@ function! vdbi#execute(query)
     call s:vdbi.prepare(a:query)
     let res = s:vdbi.execute([])
     let cols = s:vdbi.fetch_columns()
-    let rows = s:vdbi.fetch(-1)
-    if len(cols)
-      let rows = extend([cols], rows)
+    if type(cols) != 0
+      let rows = s:vdbi.fetch(-1)
+      if len(cols)
+        let rows = extend([cols], rows)
+      endif
+    else
+      let rows = []
     endif
   catch
     if exists('l:rows') | unlet rows | endif
